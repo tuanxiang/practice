@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+      *{
+        margin: 0;
+        padding: 0;
+      }
+      .pic{
+        width: 236px;
+        box-shadow:0 1px 3px rgba(0,0,0,.3);
+        overflow:hidden;
+        margin-top:10px;
+      }
+      img{
+        width:236px;
+        border: none;
+        display: block;
+      }
+      ul{
+        list-style: none;
+        margin: 0 auto;
+        width:994px;
+        overflow:hidden;
+      }
+      li{
+        float:left;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <ul>
+        <li>
+          <!-- <div class="pic">
+            <img src="http:\/\/www.wookmark.com\/images\/original\/638518_wookmark.jpg">
+          </div> -->
+        </li>
+        <li>
+          <!-- <div class="pic" style="height:200px">
+            <img src="http:\/\/www.wookmark.com\/images\/original\/638518_wookmark.jpg">
+          </div> -->
+        </li>
+        <li>
+          <!-- <div class="pic" style="height:300px">
+            <img src="http:\/\/www.wookmark.com\/images\/original\/638518_wookmark.jpg">
+          </div> -->
+        </li>
+        <li>
+<!--          
+          <div class="pic">
+            <img src="http:\/\/www.wookmark.com\/images\/original\/638518_wookmark.jpg">
+          </div> -->
+        </li>
+    </ul>
+  
+  <script src="jquery-3.1.1.js" charset="utf-8"></script>
+  <script type="text/javascript">
+  'use strict'
+  const w=236;
+  let num=0;
+  let $li=$('li');
+  
+  scroll();
+  function scroll(){
+  	$.ajax({
+  		dataType:'jsonp',
+  		data:{page:num},
+  		url:'http://www.wookmark.com/api/json/popular?callback=?',
+  		success:function(data){
+  			$.each(data,function(i,ele){
+  				let H=(ele.height*w)*ele.width;
+  				 var $img=$(`<img src="${ele.preview}"style="height:${H}"alt=""/>`);
+  				  var $div=$('<div class="pic"></div>');
+  				$img[0].onload=function(){
+//					let maxLi=maxIndex();
+//					$div.append($img);
+//					maxLi.append($div);
+					let minLi=maxIndex();
+   					$div.append($img);
+   					$(minLi).append($div);
+  				}
+  			})
+  		}
+  		
+  	});
+  }
+  function  maxIndex(){
+  	let maxNum=Infinity;
+  	let li=null;
+  	$li.each(function(i,ele){
+  		if(ele.scrollHeight<maxNum){
+  			maxNum=ele.scrollHeight;
+  			li=ele;
+  		}
+  	})
+  	return li;
+  }
+  </script>
+  </body>
+</html>

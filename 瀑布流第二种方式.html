@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+      *{
+        margin: 0;
+        padding: 0;
+      }
+      .pic{
+        width: 236px;
+        box-shadow:0 1px 3px rgba(0,0,0,.3);
+        overflow:hidden;
+        /*margin-top:10px;*/
+      }
+      img{
+        width:236px;
+        border: none;
+        display: block;
+      }
+      ul{
+        list-style: none;
+        margin: 0 auto;
+        position: relative;
+        /*width:994px;*/
+      }
+      li{
+        position: absolute;
+        /*float:left;*/
+        /*margin-left: 10px;*/
+      }  
+    </style>
+  </head>
+  <body>
+    <ul id="ul">
+        <!-- <li class="pic">
+          <img src="http:\/\/www.wookmark.com\/images\/original\/638518_wookmark.jpg">
+        </li> -->
+    </ul>
+  
+  <script src="jquery-3.1.1.js" charset="utf-8"></script>
+  <script type="text/javascript">
+  	/*思路分析：类似积木方式计算
+  	 * 1.计算出一排有多少个li，初始化的值存到数组中
+  	 * 2.当图片加载完成时，根据数组中存的数据确定，li的位置
+  	 * 3.确定好以后，把数组中数据中确定的项累加图的高度
+  	 * 4.当页面滚动是页面滚动距离加上可视区的高度大于数组中的小的项时，加载数据
+  	 */
+   const w=236;
+   let num=0; //控制请求加载数据
+   
+   let iSpace=10;//每个li之间的间隔
+  
+   let arrT=[];
+	let arrL=[];
+	let isScroll=true;
+	 fnChange();//初始化 
+   $(window).resize(function(){
+   		fnChange(false);
+   })
+   $(window).scroll(function(){
+   		let index=fnIndex();
+   		if(arrT[index]<$(window).scrollTop()+$(window).innerHeight()){
+   			if(isScroll){
+   				isScroll=false;
+   				num++;
+   				console.log(num);
+   				scroll();
+   			}
+   		}
+   		
+   });
+   function fnChange(onOff){
+	   let clientW=$(window).innerWidth();//可视区的宽度
+	   let len=Math.floor((clientW+iSpace)/(w+iSpace)); //页面可以排列多少个li
+	   let $lis=$('li');
+	   len=len>7?7:len;
+	    arrT.length=0;
+	    arrL.length=0;
+	   //ul的宽度 = 一个页面有几个li * 一个li的实际宽度
+	   $('#ul').css({width:(w+iSpace)*len});
+	   
+	   for(var i=0;i<len;i++){
+	   	arrL.push(i*(w+iSpace));
+	   	arrT.push(0);
+	   }
+	   //onOff为真的时候加载数据渲染页面，为假的时候改变li的位置
+	   if(!onOff){
+	   		scroll();
+	   }else{
+	   		$lis.each(function(i,ele){
+	   			let index=fnIndex();
+	   			$(ele).css({
+	   				left:arrL[index],
+	   				top:arrT[index]
+	   			});
+	   			arrT[index]+=$(ele).height()+10;
+	   		});
+	   }
+   }
+   //加载数据，渲染页面
+   	function scroll(){
+   		$.ajax({
+   			dataType:'jsonp',
+   			data:{page:num},
+   			url:'http://www.wookmark.com/api/json/popular?callback=?',
+   			success:function(data){
+   				$.each(data,function(i,ele){
+   					let H=Math.floor((ele.height*w)/ele.width);
+  				    let $img=$(`<img src="${ele.preview}"style="height:${H}"alt=""/>`);
+  				    $img[0].onload=function(){
+  				    	let index=fnIndex();
+  				    	let $li=$(`<li class="pic" style="left:${arrL[index]}px;top:${arrT[index]}px"></li>`);
+						$li.append($img);
+						$("#ul").append($li);
+						arrT[index]+=H+10;//把图片的高度类加到数组中
+  				    }
+   				});
+   				isScroll=true;//
+   			}
+   		});
+   		
+   	}
+   	function fnIndex(){
+   		var maxNum=Infinity;
+   		var index=0;
+   		for(var i=0;i<arrT.length;i++){
+   			if(arrT[i]<maxNum){
+   				maxNum=arrT[i];
+   				index=i;
+   			}
+   		}
+   		return index;
+   	}
+    
+    
+    
+    
+    
+  </script>
+  </body>
+</html>
